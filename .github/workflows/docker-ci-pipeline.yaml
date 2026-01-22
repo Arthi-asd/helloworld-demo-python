@@ -29,5 +29,5 @@ jobs:
       - name: Push Image
         run: docker push ${{ vars.DOCKER_USERNAME }}/helloworld-demo-python:rt
       - name: container cleanup
-        run: docker rm python-app
+        run: docker rm -f python-app
         
