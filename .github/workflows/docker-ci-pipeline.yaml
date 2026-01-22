@@ -15,6 +15,8 @@ jobs:
         
       - name: Create container
         run: docker run --name python-app -idt -p 8080:8080 ${{ vars.DOCKER_USERNAME }}/helloworld-demo-python:rt
+      - name: sleep
+        run: sleep 20
       - name: verify contianer 
         run: docker ps
       - name: curl container
