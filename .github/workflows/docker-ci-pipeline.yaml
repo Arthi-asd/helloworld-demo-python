@@ -48,7 +48,7 @@ jobs:
       - name: get deployment status
         run: |
           kubectl get ns
-          kubectl get deploy,service -n python-app
+          kubectl get deploy,service
       - name: test service
         run: |
           minikube service list
