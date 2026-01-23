@@ -32,23 +32,27 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
   k8scd-job:
     runs-on: ubuntu-latest
-    needs:
-      - dockerci-job
+    needs: [dockerci-job]
     steps:
       - name: Code Checkout
         uses: actions/checkout@v6
+        
       - name: start minikube
         uses: medyagh/setup-minikube@latest
+        
       - name: test-minikube
         run: kubectl get pods -A
+        
       - name: apply-yaml files
-        run: 
+        run: |
           kubectl apply -f k8s/.
           kubectl wait --for=condition=ready pod -l app=python
+          
       - name: get deployment status
         run: |
           kubectl get ns
           kubectl get deploy,service
+          
       - name: test service
         run: |
           minikube service list
