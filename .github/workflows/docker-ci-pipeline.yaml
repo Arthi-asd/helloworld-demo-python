@@ -40,7 +40,7 @@ jobs:
       - name: start minikube
         uses: medyagh/setup-minikube@latest
       - name: test-minikube
-        run: kubectl get-pods -A
+        run: kubectl get pods -A
       - name: apply-yaml files
         run: 
           kubectl config set-context --current --namespace=python-app
