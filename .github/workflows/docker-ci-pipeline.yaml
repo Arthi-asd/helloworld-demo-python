@@ -1,62 +1,58 @@
+---
 name: docker-ci-pipeline
-on: 
+on:
   push:
     paths-ignore:
-        -  'LICENSE'
-        -  'Dockerfile'
-        -  'CONTRIBUTING.md'
-        -  'README.md'
+      - LICENSE
+      - Dockerfile
+      - CONTRIBUTING.md
+      - README.md
 jobs:
   dockerci-job:
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v6
-        
       - name: Build Image
         run: docker build -t ${{ vars.DOCKER_USERNAME }}/helloworld-demo-python:rt .
-        
       - name: verify image
         run: docker images
-        
       - name: Create container
-        run: docker run --name python-app -idt -p 8080:8080 ${{ vars.DOCKER_USERNAME }}/helloworld-demo-python:rt
+        run: docker run --name python-app -idt -p 8080:8080 ${{ vars.DOCKER_USERNAME
+          }}/helloworld-demo-python:rt
       - name: sleep
         run: sleep 20
-      - name: verify contianer 
+      - name: verify contianer
         run: docker ps
       - name: curl container
-        run: curl -f http://localhost:8080/        
+        run: curl -f http://localhost:8080/
       - name: Docker Login
         uses: docker/login-action@v3.6.0
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-
   k8scd-job:
-      runs-on: ubuntu-latest
-      needs: [dockerci-job]
+    runs-on: ubuntu-latest
+    needs:
+      - dockerci-job
     steps:
-       - name: Code Checkout
-         uses: actions/checkout@v6         
-       - name: start minikube
-         uses: medyagh/setup-minikube@latest
-       - name: test-minikube
-         run: kubetcl get-pods -A
-       - name: apply-yaml files
-         run: 
-           kubectl apply -f k8s/.
-           kubectl config set-context --current --namespace=python-app
-           kubectl wait --for=condition=ready pod -l app=python        
-       - name: get deployment status
-         run: |
+      - name: Code Checkout
+        uses: actions/checkout@v6
+      - name: start minikube
+        uses: medyagh/setup-minikube@latest
+      - name: test-minikube
+        run: kubetcl get-pods -A
+      - name: apply-yaml files
+        run: kubectl apply -f k8s/. kubectl config set-context --current
+          --namespace=python-app kubectl wait --for=condition=ready pod -l
+          app=python
+      - name: get deployment status
+        run: |
           kubectl get ns
           kubectl get deploy,service -n python-app
-       - name: test service
-         run: |
-            minikube service list
-            minikube service my-service1 --url
-            echo -n "------------------opening the service------------------"
-            curl $(minikube service my-service1 --url)
-          
-    
+      - name: test service
+        run: |
+          minikube service list
+          minikube service my-service1 --url
+          echo -n "------------------opening the service------------------"
+          curl $(minikube service my-service1 --url)
